@@ -7,42 +7,42 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js" onerror="handleCalendarCDNError()"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="light-theme font-poppins">
     <!-- Navigation Bar -->
-    <nav class="bg-gradient-to-r from-blue-600 to-purple-700 p-4 shadow-xl fixed w-full top-0 z-50 glass-nav">
+    <nav class="bg-gradient-to-r from-blue-600 to-purple-700 p-3 shadow-xl fixed w-full top-0 z-50 glass-nav">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-white text-2xl font-bold tracking-tight">Bunk It</h1>
+            <h1 class="text-white text-xl font-bold tracking-tight">Bunk It</h1>
             <div class="md:hidden">
                 <button id="nav-toggle" class="text-white text-2xl focus:outline-none">☰</button>
             </div>
-            <ul id="nav-links" class="hidden md:flex gap-8 text-white text-lg">
-                <li><a href="#home" class="nav-link hover:text-yellow-300 transition-colors duration-300">Home</a></li>
-                <li><a href="#subjects" class="nav-link hover:text-yellow-300 transition-colors duration-300">Subjects</a></li>
-                <li><a href="#calendar" class="nav-link hover:text-yellow-300 transition-colors duration-300">Calendar</a></li>
-                <li><a href="#stats" class="nav-link hover:text-yellow-300 transition-colors duration-300">Stats</a></li>
+            <ul id="nav-links" class="hidden md:flex gap-6 text-white text-base">
+                <li><a href="#home" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Home</a></li>
+                <li><a href="#subjects" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Subjects</a></li>
+                <li><a href="#calendar" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Calendar</a></li>
+                <li><a href="#stats" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Stats</a></li>
             </ul>
-            <div class="theme-toggle flex items-center gap-3">
-                <span onclick="toggleTheme()" class="cursor-pointer text-2xl hover:text-yellow-300 transition-colors duration-300">🌙</span>
-                <input type="color" id="bg-color" value="#f4f4f4" onchange="changeBackgroundColor()" class="h-8 w-8 rounded-full">
+            <div class="theme-toggle flex items-center gap-2">
+                <span onclick="toggleTheme()" class="cursor-pointer text-xl hover:text-yellow-300 transition-colors duration-300">🌙</span>
+                <input type="color" id="bg-color" value="#f4f4f4" onchange="changeBackgroundColor()" class="h-6 w-6 rounded-full">
             </div>
         </div>
-        <ul id="nav-mobile-links" class="hidden flex-col gap-4 text-white text-lg bg-gradient-to-r from-blue-600 to-purple-700 p-4 md:hidden">
-            <li><a href="#home" class="nav-link hover:text-yellow-300 transition-colors duration-300">Home</a></li>
-            <li><a href="#subjects" class="nav-link hover:text-yellow-300 transition-colors duration-300">Subjects</a></li>
-            <li><a href="#calendar" class="nav-link hover:text-yellow-300 transition-colors duration-300">Calendar</a></li>
-            <li><a href="#stats" class="nav-link hover:text-yellow-300 transition-colors duration-300">Stats</a></li>
+        <ul id="nav-mobile-links" class="hidden flex-col gap-3 text-white text-base bg-gradient-to-r from-blue-600 to-purple-700 p-3 md:hidden">
+                <li><a href="#home" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Home</a></li>
+                <li><a href="#subjects" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Subjects</a></li>
+                <li><a href="#calendar" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Calendar</a></li>
+                <li><a href="#stats" class="nav-link px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-300">Stats</a></li>
         </ul>
     </nav>
 
     <!-- Main Content -->
-    <div class="container mx-auto max-w-4xl mt-24 p-6 min-h-screen">
+    <div class="container mx-auto max-w-4xl mt-20 p-6 min-h-screen">
         <!-- Home: Target Attendance -->
         <section id="home-page" class="page animate__animated animate__fadeIn">
-            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Set Your Target Attendance</h2>
+            <h2 class="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Set Your Target Attendance</h2>
             <div class="glass-card p-8 rounded-2xl shadow-2xl">
                 <form id="target-form" class="space-y-6">
                     <div>
@@ -56,7 +56,7 @@
 
         <!-- Subjects -->
         <section id="subjects-page" class="page hidden animate__animated animate__fadeIn">
-            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Manage Your Subjects</h2>
+            <h2 class="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Manage Your Subjects</h2>
             <div class="glass-card p-8 rounded-2xl shadow-2xl">
                 <form id="subject-form" class="space-y-6">
                     <div>
@@ -92,7 +92,7 @@
 
         <!-- Calendar -->
         <section id="calendar-page" class="page hidden animate__animated animate__fadeIn">
-            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Attendance Calendar</h2>
+            <h2 class="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Attendance Calendar</h2>
             <div id="calendar-loading" class="text-center mb-4 text-gray-600 dark:text-gray-400">Loading calendar...</div>
             <div id="calendar-error" class="text-center mb-4 text-red-500 hidden">Failed to load calendar. Please refresh or check your connection.</div>
             <div id="calendar" class="glass-card p-4 rounded-2xl shadow-2xl mb-6 hidden"></div>
@@ -131,7 +131,7 @@
 
         <!-- Stats -->
         <section id="stats-page" class="page hidden animate__animated animate__fadeIn">
-            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Attendance Stats</h2>
+            <h2 class="text-4xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Attendance Stats</h2>
             <div id="stats-display" class="space-y-4"></div>
         </section>
     </div>
