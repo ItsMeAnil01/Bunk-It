@@ -6,6 +6,7 @@
     let pendingStorageUpdate = false;
     let cachedStats = new Map();
     let lastStatsUpdate = 0;
+    let calendar = null;
 
     // Prune old attendance data
     if (attendance.length > 50) {
@@ -87,6 +88,13 @@
             initializeCalendar();
             updateStats();
         }
+
+        // Bind button event listeners
+        document.getElementById('present-btn').addEventListener('click', () => markAttendance('Present'));
+        document.getElementById('absent-btn').addEventListener('click', () => markAttendance('Absent'));
+        document.getElementById('reset-btn').addEventListener('click', resetAttendance);
+        document.getElementById('save-edit-btn').addEventListener('click', saveEditedAttendance);
+        document.getElementById('cancel-edit-btn').addEventListener('click', closeEditModal);
     };
 
     // Target Attendance Form
@@ -158,13 +166,12 @@
     }
 
     // Calendar Initialization
-    let calendar;
     function initializeCalendar() {
         console.log('Initializing calendar');
         const calendarEl = document.getElementById('calendar');
         const loadingEl = document.getElementById('calendar-loading');
         const errorEl = document.getElementById('calendar-error');
-        
+
         if (!window.FullCalendar) {
             console.error('FullCalendar not loaded');
             loadingEl.classList.add('hidden');
@@ -180,7 +187,13 @@
                         console.log('Fetching events from', fetchInfo.startStr, 'to', fetchInfo.endStr);
                         try {
                             const filteredEvents = attendance
-                                .filter(entry => entry.date >= fetchInfo.startStr && entry.date <= fetchInfo.endStr && entry.subject && entry.status)
+                                .filter(entry => {
+                                    if (!entry.date || !entry.subject || !entry.status) {
+                                        console.warn('Invalid attendance entry:', entry);
+                                        return false;
+                                    }
+                                    return entry.date >= fetchInfo.startStr && entry.date <= fetchInfo.endStr;
+                                })
                                 .slice(-50) // Limit to 50 events
                                 .map(entry => ({
                                     id: entry.id,
