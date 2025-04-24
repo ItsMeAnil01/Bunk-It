@@ -52,6 +52,11 @@ ul li {
     margin: 0 auto;
 }
 
+#calendar-loading {
+    font-size: 1.2rem;
+    color: #666;
+}
+
 #edit-modal {
     z-index: 1000;
 }

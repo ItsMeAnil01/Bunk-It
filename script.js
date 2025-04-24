@@ -2,6 +2,7 @@ let targetAttendance = parseFloat(localStorage.getItem('targetAttendance')) || n
 let subjects = JSON.parse(localStorage.getItem('subjects')) || [];
 let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
 let pendingStorageUpdate = false;
+let cachedStats = new Map();
 
 function toggleTheme() {
     console.log('Toggling theme');
@@ -24,6 +25,10 @@ function updateStorage() {
         pendingStorageUpdate = true;
         setTimeout(() => {
             console.log('Updating localStorage');
+            // Cap attendance at 1000 entries
+            if (attendance.length > 1000) {
+                attendance = attendance.slice(-1000);
+            }
             localStorage.setItem('subjects', JSON.stringify(subjects));
             localStorage.setItem('attendance', JSON.stringify(attendance));
             pendingStorageUpdate = false;
@@ -121,15 +126,28 @@ let calendar;
 function initializeCalendar() {
     console.log('Initializing calendar');
     const calendarEl = document.getElementById('calendar');
+    const loadingEl = document.getElementById('calendar-loading');
+    loadingEl.classList.remove('hidden');
     try {
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            events: attendance.map(entry => ({
-                id: entry.id,
-                title: `${entry.subject}: ${entry.status}`,
-                start: entry.date,
-                backgroundColor: entry.status === 'Present' ? '#10b981' : entry.status === 'Absent' ? '#ef4444' : '#f59e0b',
-            })),
+            eventSources: [{
+                events: function(fetchInfo, successCallback) {
+                    // Load events for current view only
+                    const start = fetchInfo.startStr;
+                    const end = fetchInfo.endStr;
+                    console.log('Fetching events from', start, 'to', end);
+                    const filteredEvents = attendance
+                        .filter(entry => entry.date >= start && entry.date <= end)
+                        .map(entry => ({
+                            id: entry.id,
+                            title: `${entry.subject}: ${entry.status}`,
+                            start: entry.date,
+                            backgroundColor: entry.status === 'Present' ? '#10b981' : entry.status === 'Absent' ? '#ef4444' : '#f59e0b',
+                        }));
+                    successCallback(filteredEvents);
+                }
+            }],
             eventDisplay: 'block',
             eventDidMount: info => {
                 info.el.style.cursor = 'pointer';
@@ -145,9 +163,11 @@ function initializeCalendar() {
             }
         });
         calendar.render();
+        loadingEl.classList.add('hidden');
     } catch (error) {
         console.error('Calendar initialization failed:', error);
         alert('Failed to load calendar. Please check your internet connection.');
+        loadingEl.classList.add('hidden');
     }
 }
 
@@ -193,7 +213,7 @@ function markAttendance(status) {
 
     calendar.addEvent({
         id: entry.id,
-        title: `${subject}: ${status}`,
+        title: `${subject}: ${entry.status}`,
         start: date,
         backgroundColor: status === 'Present' ? '#10b981' : status === 'Absent' ? '#ef4444' : '#f59e0b',
     });
@@ -271,14 +291,16 @@ function saveEditedAttendance() {
 
     updateStorage();
     calendar.getEvents().forEach(event => event.remove());
-    attendance.forEach(entry => {
-        calendar.addEvent({
+    const currentView = calendar.view;
+    const filteredEvents = attendance
+        .filter(entry => entry.date >= currentView.activeStart.toISOString().split('T')[0] && entry.date <= currentView.activeEnd.toISOString().split('T')[0])
+        .map(entry => ({
             id: entry.id,
             title: `${entry.subject}: ${entry.status}`,
             start: entry.date,
             backgroundColor: entry.status === 'Present' ? '#10b981' : entry.status === 'Absent' ? '#ef4444' : '#f59e0b',
-        });
-    });
+        }));
+    filteredEvents.forEach(event => calendar.addEvent(event));
     updateStats();
     closeEditModal();
 }
@@ -310,19 +332,27 @@ function updateStats() {
     const display = document.getElementById('stats-display');
     display.innerHTML = '';
     subjects.forEach(subject => {
-        const currentAttendance = subject.totalClasses ? (subject.attendedClasses / subject.totalClasses) * 100 : 0;
-        const classesNeeded = targetAttendance && subject.totalClasses ? 
-            Math.ceil((targetAttendance * subject.totalClasses - 100 * subject.attendedClasses) / (100 - targetAttendance)) : 0;
-        const classesCanBunk = targetAttendance && subject.totalClasses ? 
-            Math.floor((subject.attendedClasses * 100 - targetAttendance * subject.totalClasses) / targetAttendance) : 0;
+        const cacheKey = `${subject.name}-${subject.totalClasses}-${subject.attendedClasses}`;
+        let stats;
+        if (cachedStats.has(cacheKey)) {
+            stats = cachedStats.get(cacheKey);
+        } else {
+            const currentAttendance = subject.totalClasses ? (subject.attendedClasses / subject.totalClasses) * 100 : 0;
+            const classesNeeded = targetAttendance && subject.totalClasses ? 
+                Math.ceil((targetAttendance * subject.totalClasses - 100 * subject.attendedClasses) / (100 - targetAttendance)) : 0;
+            const classesCanBunk = targetAttendance && subject.totalClasses ? 
+                Math.floor((subject.attendedClasses * 100 - targetAttendance * subject.totalClasses) / targetAttendance) : 0;
+            stats = { currentAttendance, classesNeeded, classesCanBunk };
+            cachedStats.set(cacheKey, stats);
+        }
 
         const stat = document.createElement('div');
         stat.className = 'p-4 border rounded-md';
         stat.innerHTML = `
             <h4 class="font-medium">${subject.name}</h4>
-            <p>Current: ${currentAttendance.toFixed(2)}%</p>
-            <p>Need to attend: ${classesNeeded > 0 ? classesNeeded : 0} more classes</p>
-            <p>Can bunk: ${classesCanBunk > 0 ? classesCanBunk : 0} classes</p>
+            <p>Current: ${stats.currentAttendance.toFixed(2)}%</p>
+            <p>Need to attend: ${stats.classesNeeded > 0 ? stats.classesNeeded : 0} more classes</p>
+            <p>Can bunk: ${stats.classesCanBunk > 0 ? stats.classesCanBunk : 0} classes</p>
         `;
         display.appendChild(stat);
     });
