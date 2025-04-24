@@ -1,6 +1,7 @@
 let targetAttendance = parseFloat(localStorage.getItem('targetAttendance')) || null;
 let subjects = JSON.parse(localStorage.getItem('subjects')) || [];
 let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+let pendingStorageUpdate = false;
 
 function toggleTheme() {
     console.log('Toggling theme');
@@ -15,6 +16,19 @@ function changeBackgroundColor() {
     console.log('Changing background color to:', color);
     document.body.style.backgroundColor = color;
     localStorage.setItem('bgColor', color);
+}
+
+// Debounce localStorage updates
+function updateStorage() {
+    if (!pendingStorageUpdate) {
+        pendingStorageUpdate = true;
+        setTimeout(() => {
+            console.log('Updating localStorage');
+            localStorage.setItem('subjects', JSON.stringify(subjects));
+            localStorage.setItem('attendance', JSON.stringify(attendance));
+            pendingStorageUpdate = false;
+        }, 100);
+    }
 }
 
 // Initialize page
@@ -78,7 +92,7 @@ document.getElementById('subject-form').addEventListener('submit', function(e) {
 
     const subject = { name, days, totalClasses, attendedClasses };
     subjects.push(subject);
-    localStorage.setItem('subjects', JSON.stringify(subjects));
+    updateStorage();
 
     addSubjectToList(subject);
     updateCalendarSubjectDropdown();
@@ -111,13 +125,23 @@ function initializeCalendar() {
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: attendance.map(entry => ({
+                id: entry.id,
                 title: `${entry.subject}: ${entry.status}`,
                 start: entry.date,
                 backgroundColor: entry.status === 'Present' ? '#10b981' : entry.status === 'Absent' ? '#ef4444' : '#f59e0b',
             })),
+            eventDisplay: 'block',
+            eventDidMount: info => {
+                info.el.style.cursor = 'pointer';
+            },
             dateClick: function(info) {
                 console.log('Date clicked:', info.dateStr);
                 document.getElementById('calendar-date').value = info.dateStr;
+                showEditModal(info.dateStr);
+            },
+            eventClick: function(info) {
+                console.log('Event clicked:', info.event.id);
+                showEditModal(info.event.startStr);
             }
         });
         calendar.render();
@@ -163,18 +187,121 @@ function markAttendance(status) {
         subjectData.totalClasses++;
     }
 
-    const entry = { subject, status, date };
+    const entry = { id: Date.now().toString(), subject, status, date };
     attendance.push(entry);
-    localStorage.setItem('subjects', JSON.stringify(subjects));
-    localStorage.setItem('attendance', JSON.stringify(attendance));
+    updateStorage();
 
     calendar.addEvent({
+        id: entry.id,
         title: `${subject}: ${status}`,
         start: date,
         backgroundColor: status === 'Present' ? '#10b981' : status === 'Absent' ? '#ef4444' : '#f59e0b',
     });
 
     updateStats();
+}
+
+// Edit Attendance
+let editDate = null;
+function showEditModal(date) {
+    console.log('Showing edit modal for date:', date);
+    editDate = date;
+    const modal = document.getElementById('edit-modal');
+    const editDateEl = document.getElementById('edit-date');
+    const editEntriesEl = document.getElementById('edit-entries');
+
+    editDateEl.textContent = `Date: ${date}`;
+    editEntriesEl.innerHTML = '';
+
+    const entries = attendance.filter(entry => entry.date === date);
+    if (entries.length === 0) {
+        editEntriesEl.textContent = 'No attendance records for this date.';
+    } else {
+        entries.forEach(entry => {
+            const div = document.createElement('div');
+            div.className = 'flex gap-2 items-center';
+            div.innerHTML = `
+                <select data-id="${entry.id}" class="border rounded-md">
+                    <option value="Present" ${entry.status === 'Present' ? 'selected' : ''}>Present</option>
+                    <option value="Absent" ${entry.status === 'Absent' ? 'selected' : ''}>Absent</option>
+                    <option value="Extra" ${entry.status === 'Extra' ? 'selected' : ''}>Extra</option>
+                </select>
+                <button onclick="deleteAttendance('${entry.id}')" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600">Delete</button>
+            `;
+            editEntriesEl.appendChild(div);
+        });
+    }
+
+    modal.classList.remove('hidden');
+}
+
+function closeEditModal() {
+    console.log('Closing edit modal');
+    document.getElementById('edit-modal').classList.add('hidden');
+}
+
+function saveEditedAttendance() {
+    console.log('Saving edited attendance');
+    const entries = document.querySelectorAll('#edit-entries select');
+    entries.forEach(select => {
+        const id = select.dataset.id;
+        const newStatus = select.value;
+        const entry = attendance.find(e => e.id === id);
+        if (entry) {
+            const subjectData = subjects.find(s => s.name === entry.subject);
+            if (subjectData) {
+                // Revert previous effect
+                if (entry.status === 'Present' || entry.status === 'Extra') {
+                    subjectData.attendedClasses--;
+                    subjectData.totalClasses--;
+                } else if (entry.status === 'Absent') {
+                    subjectData.totalClasses--;
+                }
+                // Apply new effect
+                if (newStatus === 'Present' || newStatus === 'Extra') {
+                    subjectData.attendedClasses++;
+                    subjectData.totalClasses++;
+                } else if (newStatus === 'Absent') {
+                    subjectData.totalClasses++;
+                }
+                entry.status = newStatus;
+            }
+        }
+    });
+
+    updateStorage();
+    calendar.getEvents().forEach(event => event.remove());
+    attendance.forEach(entry => {
+        calendar.addEvent({
+            id: entry.id,
+            title: `${entry.subject}: ${entry.status}`,
+            start: entry.date,
+            backgroundColor: entry.status === 'Present' ? '#10b981' : entry.status === 'Absent' ? '#ef4444' : '#f59e0b',
+        });
+    });
+    updateStats();
+    closeEditModal();
+}
+
+function deleteAttendance(id) {
+    console.log('Deleting attendance:', id);
+    const entry = attendance.find(e => e.id === id);
+    if (entry) {
+        const subjectData = subjects.find(s => s.name === entry.subject);
+        if (subjectData) {
+            if (entry.status === 'Present' || entry.status === 'Extra') {
+                subjectData.attendedClasses--;
+                subjectData.totalClasses--;
+            } else if (entry.status === 'Absent') {
+                subjectData.totalClasses--;
+            }
+        }
+        attendance = attendance.filter(e => e.id !== id);
+        updateStorage();
+        calendar.getEventById(id).remove();
+        updateStats();
+        showEditModal(editDate);
+    }
 }
 
 // Update Stats

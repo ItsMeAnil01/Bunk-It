@@ -84,6 +84,19 @@
             </div>
         </section>
 
+        <!-- Edit Attendance Modal -->
+        <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full">
+                <h3 class="text-lg font-semibold mb-4">Edit Attendance</h3>
+                <div id="edit-date" class="mb-4"></div>
+                <div id="edit-entries" class="space-y-2"></div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="saveEditedAttendance()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Save</button>
+                    <button onclick="closeEditModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Attendance Stats -->
         <section id="stats-section" class="mb-8 hidden">
             <h2 class="text-xl font-semibold mb-4">Attendance Stats</h2>
