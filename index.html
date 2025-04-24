@@ -8,100 +8,120 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="light-theme">
-    <div class="theme-toggle flex items-center gap-2 fixed top-4 right-4">
-        <span onclick="toggleTheme()">🌙</span>
-        <input type="color" id="bg-color" value="#f4f4f4" onchange="changeBackgroundColor()">
-    </div>
-    <div class="container mx-auto max-w-4xl mt-12 p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6">Bunk It - Attendance Manager</h1>
+<body class="light-theme font-poppins">
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-600 to-purple-700 p-4 shadow-xl fixed w-full top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-white text-2xl font-bold tracking-tight">Bunk It</h1>
+            <ul class="flex gap-8 text-white text-lg">
+                <li><a href="#home" class="nav-link hover:text-yellow-300 transition-colors duration-300">Home</a></li>
+                <li><a href="#subjects" class="nav-link hover:text-yellow-300 transition-colors duration-300">Subjects</a></li>
+                <li><a href="#calendar" class="nav-link hover:text-yellow-300 transition-colors duration-300">Calendar</a></li>
+                <li><a href="#stats" class="nav-link hover:text-yellow-300 transition-colors duration-300">Stats</a></li>
+            </ul>
+            <div class="theme-toggle flex items-center gap-3">
+                <span onclick="toggleTheme()" class="cursor-pointer text-2xl hover:text-yellow-300 transition-colors duration-300">🌙</span>
+                <input type="color" id="bg-color" value="#f4f4f4" onchange="changeBackgroundColor()" class="h-8 w-8 rounded-full">
+            </div>
+        </div>
+    </nav>
 
-        <!-- Target Attendance Input -->
-        <section id="target-section" class="mb-8">
-            <h2 class="text-xl font-semibold mb-4">Set Target Attendance</h2>
-            <form id="target-form" class="space-y-4">
-                <div>
-                    <label for="target-attendance" class="block text-sm font-medium mb-1">Target Attendance (%):</label>
-                    <input type="number" id="target-attendance" value="75" min="0" max="100" class="w-full p-2 border rounded-md" required>
-                </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Set Target</button>
-            </form>
+    <!-- Main Content -->
+    <div class="container mx-auto max-w-4xl mt-24 p-6">
+        <!-- Home: Target Attendance -->
+        <section id="home-page" class="page animate__animated animate__fadeIn">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Set Your Target Attendance</h2>
+            <div class="glass-card p-8 rounded-2xl shadow-2xl">
+                <form id="target-form" class="space-y-6">
+                    <div>
+                        <label for="target-attendance" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Target Attendance (%):</label>
+                        <input type="number" id="target-attendance" value="75" min="0" max="100" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300">Set Target</button>
+                </form>
+            </div>
         </section>
 
-        <!-- Subject Input -->
-        <section id="subject-section" class="mb-8 hidden">
-            <h2 class="text-xl font-semibold mb-4">Add Subject</h2>
-            <form id="subject-form" class="space-y-4">
-                <div>
-                    <label for="subject-name" class="block text-sm font-medium mb-1">Subject Name:</label>
-                    <input type="text" id="subject-name" name="subject-name" class="w-full p-2 border rounded-md" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Days of Classes:</label>
-                    <div class="flex gap-2 flex-wrap">
-                        <label><input type="checkbox" name="days" value="Monday"> Monday</label>
-                        <label><input type="checkbox" name="days" value="Tuesday"> Tuesday</label>
-                        <label><input type="checkbox" name="days" value="Wednesday"> Wednesday</label>
-                        <label><input type="checkbox" name="days" value="Thursday"> Thursday</label>
-                        <label><input type="checkbox" name="days" value="Friday"> Friday</label>
+        <!-- Subjects -->
+        <section id="subjects-page" class="page hidden animate__animated animate__fadeIn">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Manage Your Subjects</h2>
+            <div class="glass-card p-8 rounded-2xl shadow-2xl">
+                <form id="subject-form" class="space-y-6">
+                    <div>
+                        <label for="subject-name" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Subject Name:</label>
+                        <input type="text" id="subject-name" name="subject-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
                     </div>
-                </div>
-                <div>
-                    <label for="total-classes" class="block text-sm font-medium mb-1">Total Classes Conducted:</label>
-                    <input type="number" id="total-classes" name="total-classes" min="0" class="w-full p-2 border rounded-md" value="0" required>
-                </div>
-                <div>
-                    <label for="attended-classes" class="block text-sm font-medium mb-1">Classes Attended:</label>
-                    <input type="number" id="attended-classes" name="attended-classes" min="0" class="w-full p-2 border rounded-md" value="0" required>
-                </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Add Subject</button>
-            </form>
-            <div id="subject-display" class="mt-4">
-                <h3 class="text-lg font-medium">Your Subjects</h3>
-                <ul id="subject-list" class="mt-2"></ul>
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Days of Classes:</label>
+                        <div class="flex gap-4 flex-wrap">
+                            <label class="flex items-center gap-2"><input type="checkbox" name="days" value="Monday"> Monday</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" name="days" value="Tuesday"> Tuesday</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" name="days" value="Wednesday"> Wednesday</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" name="days" value="Thursday"> Thursday</label>
+                            <label class="flex items-center gap-2"><input type="checkbox" name="days" value="Friday"> Friday</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="total-classes" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Total Classes Conducted:</label>
+                        <input type="number" id="total-classes" name="total-classes" min="0" value="0" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                    </div>
+                    <div>
+                        <label for="attended-classes" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Classes Attended:</label>
+                        <input type="number" id="attended-classes" name="attended-classes" min="0" value="0" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300">Add Subject</button>
+                </form>
+            </div>
+            <div id="subject-display" class="mt-8">
+                <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Your Subjects</h3>
+                <ul id="subject-list" class="space-y-4"></ul>
             </div>
         </section>
 
         <!-- Calendar -->
-        <section id="calendar-section" class="mb-8 hidden">
-            <h2 class="text-xl font-semibold mb-4">Attendance Calendar</h2>
-            <div id="calendar-loading" class="text-center mb-4 hidden">Loading calendar...</div>
-            <div id="calendar" class="mb-4"></div>
-            <div id="attendance-form" class="space-y-4">
-                <div>
-                    <label for="calendar-subject" class="block text-sm font-medium mb-1">Select Subject:</label>
-                    <select id="calendar-subject" name="calendar-subject" class="w-full p-2 border rounded-md"></select>
-                </div>
-                <div>
-                    <label for="calendar-date" class="block text-sm font-medium mb-1">Date:</label>
-                    <input type="date" id="calendar-date" class="w-full p-2 border rounded-md" required>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="markAttendance('Present')" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Present</button>
-                    <button onclick="markAttendance('Absent')" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Absent</button>
-                    <button onclick="markAttendance('Extra')" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">Extra</button>
+        <section id="calendar-page" class="page hidden animate__animated animate__fadeIn">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Attendance Calendar</h2>
+            <div id="calendar-loading" class="text-center mb-4 hidden text-gray-600 dark:text-gray-400">Loading calendar...</div>
+            <div id="calendar" class="glass-card p-4 rounded-2xl shadow-2xl mb-6"></div>
+            <div id="attendance-form" class="glass-card p-8 rounded-2xl shadow-2xl">
+                <div class="space-y-6">
+                    <div>
+                        <label for="calendar-subject" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select Subject:</label>
+                        <select id="calendar-subject" name="calendar-subject" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"></select>
+                    </div>
+                    <div>
+                        <label for="calendar-date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Date:</label>
+                        <input type="date" id="calendar-date" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="markAttendance('Present')" class="flex-1 bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 transform hover:scale-105 transition-all duration-300">Present</button>
+                        <button onclick="markAttendance('Absent')" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-lg hover:bg-red-600 transform hover:scale-105 transition-all duration-300">Absent</button>
+                        <button onclick="resetAttendance()" class="flex-1 bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 transform hover:scale-105 transition-all duration-300">Reset</button>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Edit Attendance Modal -->
-        <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full">
-                <h3 class="text-lg font-semibold mb-4">Edit Attendance</h3>
-                <div id="edit-date" class="mb-4"></div>
-                <div id="edit-entries" class="space-y-2"></div>
-                <div class="flex gap-2 mt-4">
-                    <button onclick="saveEditedAttendance()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Save</button>
-                    <button onclick="closeEditModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">Cancel</button>
+        <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden animate__animated animate__zoomIn">
+            <div class="glass-card p-8 rounded-2xl shadow-2xl max-w-md w-full">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">Edit Attendance</h3>
+                <div id="edit-date" class="mb-6 text-gray-700 dark:text-gray-300"></div>
+                <div id="edit-entries" class="space-y-4"></div>
+                <div class="flex gap-4 mt-6">
+                    <button onclick="saveEditedAttendance()" class="flex-1 bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 transform hover:scale-105 transition-all duration-300">Save</button>
+                    <button onclick="closeEditModal()" class="flex-1 bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 transform hover:scale-105 transition-all duration-300">Cancel</button>
                 </div>
             </div>
         </div>
 
-        <!-- Attendance Stats -->
-        <section id="stats-section" class="mb-8 hidden">
-            <h2 class="text-xl font-semibold mb-4">Attendance Stats</h2>
-            <div id="stats-display" class="space-y-2"></div>
+        <!-- Stats -->
+        <section id="stats-page" class="page hidden animate__animated animate__fadeIn">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Attendance Stats</h2>
+            <div id="stats-display" class="space-y-4"></div>
         </section>
     </div>
     <script src="script.js"></script>
