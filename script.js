@@ -63,6 +63,9 @@
                 link.classList.add('active');
             }
         });
+        // Close mobile menu
+        document.getElementById('nav-mobile-links').classList.remove('active');
+        document.getElementById('nav-toggle').innerText = '☰';
     }
 
     window.addEventListener('hashchange', () => {
@@ -95,6 +98,13 @@
         document.getElementById('reset-btn').addEventListener('click', resetAttendance);
         document.getElementById('save-edit-btn').addEventListener('click', saveEditedAttendance);
         document.getElementById('cancel-edit-btn').addEventListener('click', closeEditModal);
+
+        // Mobile menu toggle
+        document.getElementById('nav-toggle').addEventListener('click', () => {
+            const mobileMenu = document.getElementById('nav-mobile-links');
+            mobileMenu.classList.toggle('active');
+            document.getElementById('nav-toggle').innerText = mobileMenu.classList.contains('active') ? '✕' : '☰';
+        });
     };
 
     // Target Attendance Form
@@ -176,6 +186,10 @@
             console.error('FullCalendar not loaded');
             loadingEl.classList.add('hidden');
             errorEl.classList.remove('hidden');
+            setTimeout(() => {
+                console.log('Retrying calendar initialization');
+                initializeCalendar();
+            }, 2000);
             return;
         }
 
@@ -194,7 +208,7 @@
                                     }
                                     return entry.date >= fetchInfo.startStr && entry.date <= fetchInfo.endStr;
                                 })
-                                .slice(-50) // Limit to 50 events
+                                .slice(-50)
                                 .map(entry => ({
                                     id: entry.id,
                                     title: `${entry.subject}: ${entry.status}`,
@@ -252,6 +266,7 @@
         console.log('Marking attendance:', status);
         const subject = document.getElementById('calendar-subject').value;
         const date = document.getElementById('calendar-date').value;
+        const messageEl = document.getElementById('attendance-message');
         if (!subject || !date) {
             alert('Please select a subject and date.');
             return;
@@ -283,6 +298,10 @@
             });
         }
 
+        messageEl.textContent = `Marked ${status} for ${subject} on ${date}`;
+        messageEl.classList.remove('hidden');
+        setTimeout(() => messageEl.classList.add('hidden'), 2000);
+
         updateStats();
     }
 
@@ -291,6 +310,7 @@
         console.log('Resetting attendance');
         const subject = document.getElementById('calendar-subject').value;
         const date = document.getElementById('calendar-date').value;
+        const messageEl = document.getElementById('attendance-message');
         if (!subject || !date) {
             alert('Please select a subject and date.');
             return;
@@ -317,6 +337,11 @@
 
         attendance = attendance.filter(entry => !(entry.subject === subject && entry.date === date));
         updateStorage();
+
+        messageEl.textContent = `Reset attendance for ${subject} on ${date}`;
+        messageEl.classList.remove('hidden');
+        setTimeout(() => messageEl.classList.add('hidden'), 2000);
+
         updateStats();
     }
 
@@ -340,7 +365,7 @@
                 const div = document.createElement('div');
                 div.className = 'flex gap-3 items-center';
                 div.innerHTML = `
-                    <select data-id="${entry.id}" class="border rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                    <select data-id="${entry.id}" class="border rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300">
                         <option value="Present" ${entry.status === 'Present' ? 'selected' : ''}>Present</option>
                         <option value="Absent" ${entry.status === 'Absent' ? 'selected' : ''}>Absent</option>
                     </select>
@@ -366,6 +391,7 @@
     function saveEditedAttendance() {
         console.log('Saving edited attendance');
         const entries = document.querySelectorAll('#edit-entries select');
+        const messageEl = document.getElementById('attendance-message');
         entries.forEach(select => {
             const id = select.dataset.id;
             const newStatus = select.value;
@@ -407,12 +433,18 @@
                 }));
             filteredEvents.forEach(event => calendar.addEvent(event));
         }
+
+        messageEl.textContent = `Updated attendance for ${editDate}`;
+        messageEl.classList.remove('hidden');
+        setTimeout(() => messageEl.classList.add('hidden'), 2000);
+
         updateStats();
         closeEditModal();
     }
 
     function deleteAttendance(id) {
         console.log('Deleting attendance:', id);
+        const messageEl = document.getElementById('attendance-message');
         const entry = attendance.find(e => e.id === id);
         if (entry) {
             const subjectData = subjects.find(s => s.name === entry.subject);
@@ -429,6 +461,9 @@
             if (calendar) {
                 calendar.getEventById(id)?.remove();
             }
+            messageEl.textContent = `Deleted attendance for ${entry.subject} on ${editDate}`;
+            messageEl.classList.remove('hidden');
+            setTimeout(() => messageEl.classList.add('hidden'), 2000);
             updateStats();
             showEditModal(editDate);
         }

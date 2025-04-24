@@ -13,10 +13,13 @@
 </head>
 <body class="light-theme font-poppins">
     <!-- Navigation Bar -->
-    <nav class="bg-gradient-to-r from-blue-600 to-purple-700 p-4 shadow-xl fixed w-full top-0 z-50">
+    <nav class="bg-gradient-to-r from-blue-600 to-purple-700 p-4 shadow-xl fixed w-full top-0 z-50 glass-nav">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-white text-2xl font-bold tracking-tight">Bunk It</h1>
-            <ul class="flex gap-8 text-white text-lg">
+            <div class="md:hidden">
+                <button id="nav-toggle" class="text-white text-2xl focus:outline-none">☰</button>
+            </div>
+            <ul id="nav-links" class="hidden md:flex gap-8 text-white text-lg">
                 <li><a href="#home" class="nav-link hover:text-yellow-300 transition-colors duration-300">Home</a></li>
                 <li><a href="#subjects" class="nav-link hover:text-yellow-300 transition-colors duration-300">Subjects</a></li>
                 <li><a href="#calendar" class="nav-link hover:text-yellow-300 transition-colors duration-300">Calendar</a></li>
@@ -27,10 +30,16 @@
                 <input type="color" id="bg-color" value="#f4f4f4" onchange="changeBackgroundColor()" class="h-8 w-8 rounded-full">
             </div>
         </div>
+        <ul id="nav-mobile-links" class="hidden flex-col gap-4 text-white text-lg bg-gradient-to-r from-blue-600 to-purple-700 p-4 md:hidden">
+            <li><a href="#home" class="nav-link hover:text-yellow-300 transition-colors duration-300">Home</a></li>
+            <li><a href="#subjects" class="nav-link hover:text-yellow-300 transition-colors duration-300">Subjects</a></li>
+            <li><a href="#calendar" class="nav-link hover:text-yellow-300 transition-colors duration-300">Calendar</a></li>
+            <li><a href="#stats" class="nav-link hover:text-yellow-300 transition-colors duration-300">Stats</a></li>
+        </ul>
     </nav>
 
     <!-- Main Content -->
-    <div class="container mx-auto max-w-4xl mt-24 p-6">
+    <div class="container mx-auto max-w-4xl mt-24 p-6 min-h-screen">
         <!-- Home: Target Attendance -->
         <section id="home-page" class="page animate__animated animate__fadeIn">
             <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">Set Your Target Attendance</h2>
@@ -38,7 +47,7 @@
                 <form id="target-form" class="space-y-6">
                     <div>
                         <label for="target-attendance" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Target Attendance (%):</label>
-                        <input type="number" id="target-attendance" value="75" min="0" max="100" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                        <input type="number" id="target-attendance" value="75" min="0" max="100" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300" required>
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200">Set Target</button>
                 </form>
@@ -52,7 +61,7 @@
                 <form id="subject-form" class="space-y-6">
                     <div>
                         <label for="subject-name" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Subject Name:</label>
-                        <input type="text" id="subject-name" name="subject-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                        <input type="text" id="subject-name" name="subject-name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Days of Classes:</label>
@@ -66,11 +75,11 @@
                     </div>
                     <div>
                         <label for="total-classes" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Total Classes Conducted:</label>
-                        <input type="number" id="total-classes" name="total-classes" min="0" value="0" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                        <input type="number" id="total-classes" name="total-classes" min="0" value="0" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300" required>
                     </div>
                     <div>
                         <label for="attended-classes" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Classes Attended:</label>
-                        <input type="number" id="attended-classes" name="attended-classes" min="0" value="0" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                        <input type="number" id="attended-classes" name="attended-classes" min="0" value="0" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300" required>
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200">Add Subject</button>
                 </form>
@@ -91,17 +100,18 @@
                 <div class="space-y-6">
                     <div>
                         <label for="calendar-subject" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select Subject:</label>
-                        <select id="calendar-subject" name="calendar-subject" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"></select>
+                        <select id="calendar-subject" name="calendar-subject" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300"></select>
                     </div>
                     <div>
                         <label for="calendar-date" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Date:</label>
-                        <input type="date" id="calendar-date" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200" required>
+                        <input type="date" id="calendar-date" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 transition-all duration-300" required>
                     </div>
                     <div class="flex gap-4">
                         <button type="button" id="present-btn" class="flex-1 bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600 transform hover:scale-105 transition-all duration-200">Present</button>
                         <button type="button" id="absent-btn" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-lg hover:bg-red-600 transform hover:scale-105 transition-all duration-200">Absent</button>
                         <button type="button" id="reset-btn" class="flex-1 bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 transform hover:scale-105 transition-all duration-200">Reset</button>
                     </div>
+                    <p id="attendance-message" class="text-sm text-gray-600 dark:text-gray-400 hidden"></p>
                 </div>
             </div>
         </section>
@@ -125,6 +135,12 @@
             <div id="stats-display" class="space-y-4"></div>
         </section>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-blue-600 to-purple-700 p-4 text-center text-white glass-nav mt-8">
+        <p>Made with ❤️ by <a href="https://github.com/ItsMeAnil01" target="_blank" class="underline hover:text-yellow-300 transition-colors duration-300">Anil</a></p>
+    </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
